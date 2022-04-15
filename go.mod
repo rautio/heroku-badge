@@ -1,4 +1,4 @@
-module heroku-badge
+module heroku-badger
 
 go 1.15
 
