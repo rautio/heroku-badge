@@ -50,9 +50,11 @@ func main() {
 		* 	app_name=<string> : name of the app deployed in heroku
 		*/
 		buildUpdateHandler := func(w http.ResponseWriter, req *http.Request) {
-			log.Println("=====START=====")
 			log.Println("Build Update!")
+			log.Println("=====START=====")
 			log.Println(req)
+			log.Println("=====BODY=====")
+			log.Println(req.Body)
 			var postBody BuildUpdate
 			decoder := json.NewDecoder(req.Body)
 			decodePostErr := decoder.Decode(&postBody)
