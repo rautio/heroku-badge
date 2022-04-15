@@ -15,10 +15,15 @@ import (
 
 type BuildUpdate struct {
 	CreatedAt   string `json:"created_at"`
+	Action      string `json"action"`
 	data         struct {
 		CreatedAt    string `json:"created_at"`
+		UpdatedAt    string `json:"updated_at"`
+		PublishedAt    string `json:"published_at"`
+		Status       string `json:"status"`
 		app           struct {
-			Status        string `json:"status"`
+			Id             string `json:"id"`
+			Name           string `json:"name"`
 		}
 	}
 }
@@ -64,16 +69,21 @@ func main() {
 			}
 			log.Println(postBody)
 			data := postBody.data
-			log.Println(data)
+			log.Println("=====POST BODY=====")
+			log.Println(postBody.CreatedAt)
+			log.Println(postBody.Action)
 			log.Println("=====DATA=====")
 			log.Println(data)
 			log.Println("=====CREATED=====")
-			log.Println(postBody.CreatedAt)
 			log.Println(data.CreatedAt)
+			log.Println(data.UpdatedAt)
+			log.Println(data.PublishedAt)
 			log.Println("=====APP=====")
 			log.Println(data.app)
+			log.Println(data.app.Id)
+			log.Println(data.app.Name)
 			log.Println("=====STATUS=====")
-			log.Println(data.app.Status)
+			log.Println(data.Status)
 			log.Println("=====END=====")
 			w.Write([]byte("Success"))
 			return
