@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -13,8 +12,15 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type Word struct {
-	Word             string `json:"word"`
+
+type BuildUpdate struct {
+	CreatedAt   string `json:"created_at"`
+	data         struct {
+		CreatedAt    string `json:"created_at"`
+		app           struct {
+			Status        string `json:"status"`
+		}
+	}
 }
 
 func main() {
@@ -47,7 +53,7 @@ func main() {
 			log.Println("=====START=====")
 			log.Println("Build Update!")
 			log.Println(req)
-			var postBody map[string]interface{}
+			var postBody BuildUpdate
 			decoder := json.NewDecoder(req.Body)
 			decodePostErr := decoder.Decode(&postBody)
 			if decodePostErr != nil {
@@ -55,20 +61,17 @@ func main() {
 				panic(decodePostErr)
 			}
 			log.Println(postBody)
-  		reqBody, _ := ioutil.ReadAll(req.Body)
-			var marshalledData map[string]interface{}
-		  json.Unmarshal(reqBody, &marshalledData)
-			data := marshalledData
+			data := postBody.data
 			log.Println(data)
 			log.Println("=====DATA=====")
-			log.Println(postBody["data"])
+			log.Println(data)
 			log.Println("=====CREATED=====")
-			log.Println(postBody["created_at"])
-			log.Println(data["created_at"])
+			log.Println(postBody.CreatedAt)
+			log.Println(data.CreatedAt)
 			log.Println("=====APP=====")
-			log.Println(data["app"])
+			log.Println(data.app)
 			log.Println("=====STATUS=====")
-			log.Println(data["status"])
+			log.Println(data.app.Status)
 			log.Println("=====END=====")
 			w.Write([]byte("Success"))
 			return
