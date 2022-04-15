@@ -54,14 +54,16 @@ func main() {
 				panic(decodePostErr)
 			}
 			log.Println(postBody)
+			var data := postBody["data"]
 			log.Println("=====DATA=====")
 			log.Println(postBody["data"])
 			log.Println("=====CREATED=====")
 			log.Println(postBody["created_at"])
+			log.Println(data["created_at"])
 			log.Println("=====APP=====")
-			log.Println(postBody["app"])
+			log.Println(data["app"])
 			log.Println("=====STATUS=====")
-			log.Println(postBody["status"])
+			log.Println(data["status"])
 			log.Println("=====END=====")
 			w.Write([]byte("Success"))
 			return
