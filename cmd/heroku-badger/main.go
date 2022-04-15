@@ -54,6 +54,10 @@ func main() {
 				panic(decodePostErr)
 			}
 			log.Println(postBody)
+			log.Println("=====DATA=====")
+			log.Println(postBody["data"])
+			log.Println("=====CREATED=====")
+			log.Println(postBody["created_at"])
 			log.Println("=====APP=====")
 			log.Println(postBody["app"])
 			log.Println("=====STATUS=====")
