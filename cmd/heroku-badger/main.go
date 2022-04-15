@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -46,11 +47,19 @@ func main() {
 			log.Println("=====START=====")
 			log.Println("Build Update!")
 			log.Println(req)
-			var rawPostBody map[string]interface{}
-		  json.Unmarshal(req.Body, &rawPostBody)
-			log.Println(rawPostBody)
-			postBody := rawPostBody.(map[string]interface{})
-			data := postBody["data"]
+			var postBody map[string]interface{}
+			decoder := json.NewDecoder(req.Body)
+			decodePostErr := decoder.Decode(&postBody)
+			if decodePostErr != nil {
+				log.Println(decodePostErr)
+				panic(decodePostErr)
+			}
+			log.Println(postBody)
+  		reqBody, _ := ioutil.ReadAll(req.Body)
+			var marshalledData map[string]interface{}
+		  json.Unmarshal(reqBody, &marshalledData)
+			data := marshalledData
+			log.Println(data)
 			log.Println("=====DATA=====")
 			log.Println(postBody["data"])
 			log.Println("=====CREATED=====")
