@@ -33,7 +33,7 @@ func main() {
 		log.Println(hasAppName)
 		log.Println(appName)
 		// Choose a word at random from the most frequent sub-list
-		w.WriteHeader([]byte("Hello World"))
+		w.Write([]byte("Hello World"))
 		return
 	}
 
