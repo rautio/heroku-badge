@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -27,16 +28,34 @@ func main() {
 		req.ParseForm()
 		_, hasAppName := req.Form["app_name"]
 		appName, _ := strconv.Atoi(req.URL.Query().Get("app_name"))
-
 		log.Println("Get Badge Request!")
 		log.Println(req.Form)
 		log.Println(hasAppName)
 		log.Println(appName)
-		// Choose a word at random from the most frequent sub-list
 		w.Write([]byte("Hello World"))
 		return
 	}
 
+	/**
+	 	* Return a badge image.
+		* 
+		* Query Params: 
+		* 	app_name=<string> : name of the app deployed in heroku
+		*/
+		buildUpdateHandler := func(w http.ResponseWriter, req *http.Request) {
+			log.Println("Build Update!")
+			log.Println(req)
+			var postBody map[string]interface{}
+			decoder := json.NewDecoder(req.Body)
+			decodePostErr := decoder.Decode(&postBody)
+			if decodePostErr != nil {
+				log.Println(decodePostErr)
+				panic(decodePostErr)
+			}
+			log.Println(postBody)
+			w.Write([]byte("Success"))
+			return
+		}
 	
 	// Router setup
 	router := mux.NewRouter().StrictSlash(true)
@@ -45,6 +64,10 @@ func main() {
 
 	router.HandleFunc("/", getBadgeHandler).Methods("GET","OPTIONS")
 	log.Println(fmt.Sprintf("Listening for requests at GET http://localhost%s/", port))
+
+
+	router.HandleFunc("/build-update", buildUpdateHandler).Methods("POST","OPTIONS")
+	log.Println(fmt.Sprintf("Listening for requests at POST http://localhost%s/build-update", port))
 
 
 	// TODO: Return a API doc page w/ examples like type ahead
