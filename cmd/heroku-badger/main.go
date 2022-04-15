@@ -46,15 +46,11 @@ func main() {
 			log.Println("=====START=====")
 			log.Println("Build Update!")
 			log.Println(req)
-			var postBody map[string]interface{}
-			decoder := json.NewDecoder(req.Body)
-			decodePostErr := decoder.Decode(&postBody)
-			if decodePostErr != nil {
-				log.Println(decodePostErr)
-				panic(decodePostErr)
-			}
-			log.Println(postBody)
-			var data := postBody["data"]
+			var rawPostBody map[string]interface{}
+		  json.Unmarshal(req.Body, &rawPostBody)
+			log.Println(rawPostBody)
+			postBody := rawPostBody.(map[string]interface{})
+			data := postBody["data"]
 			log.Println("=====DATA=====")
 			log.Println(postBody["data"])
 			log.Println("=====CREATED=====")
