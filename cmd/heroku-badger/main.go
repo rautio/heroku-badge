@@ -112,7 +112,7 @@ func main() {
 		badgeRes, _ := http.Get(fmt.Sprintf("https://img.shields.io/badge/Build-%s-Green.", appStatus.Status))
 		badge, _ := ioutil.ReadAll(badgeRes.Body)
 		w.WriteHeader(http.StatusOK)
-		w.Header().Set("Content-Type", "application/octet-stream")
+		w.Header().Set("Content-Type", "image/svg+xml")
 		w.Write(badge)
 		return
 	}
