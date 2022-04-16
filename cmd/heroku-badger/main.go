@@ -60,7 +60,26 @@ func main() {
 		log.Println(req.Form)
 		log.Println(hasAppName)
 		log.Println(appName)
-		w.Write([]byte("Hello World"))
+		var status string
+		var lastUpdate string
+		var appId string
+		err := db.QueryRow(`SELECT app_id,status, last_update FROM status WHERE app_name=$1;`, appName).Scan(&appId, &status, &lastUpdate)
+		defer db.Close()
+		if err != nil {
+			log.Println(err)
+			// If there was no match above then it is an unknown word
+			w.WriteHeader(http.StatusBadRequest)
+			http.Error(w, "None Found", http.StatusBadRequest)
+			return
+		}
+		result := map[string]interface{}{ "status": status, "app_id": appId, "last_update": lastUpdate }
+		jsonResponse, jsonError := json.Marshal(result)
+		if jsonError != nil {
+			log.Println(jsonError)
+		  fmt.Println("Unable to encode JSON")
+		}
+    w.Header().Set("Content-Type", "application/json")
+		w.Write(jsonResponse)
 		return
 	}
 
@@ -95,6 +114,7 @@ func main() {
 			// _, err := db.Exec(`
 			// INSERT INTO status (app_id, app_name, status, last_update)
 			// VALUES ($1, $2, $3, $4)`, data.App.Id, data.App.Name, data.Status, data.CreatedAt )
+			defer db.Close()
 			if err != nil {
 				log.Println(err)
 			}
@@ -108,7 +128,7 @@ func main() {
 
 	port := getPort()
 
-	router.HandleFunc("/", getBadgeHandler).Methods("GET","OPTIONS")
+	router.HandleFunc("/{app_name", getBadgeHandler).Methods("GET","OPTIONS")
 	log.Println(fmt.Sprintf("Listening for requests at GET http://localhost%s/", port))
 
 
