@@ -115,7 +115,7 @@ func main() {
        	VALUES ($1, $2, $3, $4)
        	ON CONFLICT DO NOTHING;`, data.App.Id, data.App.Name, data.Status, data.CreatedAt )
 			_, errUpdate := db.Exec(`
-			UPDATE status SET status=$2, last_update=$4 WHERE app_id=$1 AND last_update<=$3;
+			UPDATE status SET status=$2, last_update=$3 WHERE app_id=$1 AND last_update<=$3;
 			`, data.App.Id, data.Status, data.CreatedAt )
 			// _, err := db.Exec(`
 			// INSERT INTO status (app_id, app_name, status, last_update)
