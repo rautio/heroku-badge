@@ -101,19 +101,32 @@ func main() {
 		req.ParseForm()
 		appName := req.FormValue("app_name")
 		appStatus, dbErr := getAppStatus(appName)
+		status := appStatus.Status
+		color := "inactive"
+		if (status == "success") {
+			color = "success"
+		}
+		if (status == "pending") {
+			color = "yellow"
+		}
+		if (status == "failure") {
+			color = "critical"
+		}
 		log.Println(appStatus)
 		if dbErr != nil {
+			status = "unknown"
 			log.Println(dbErr)
 			// If there was no match above then it is an unknown word
 			w.WriteHeader(http.StatusBadRequest)
 			http.Error(w, "None Found", http.StatusBadRequest)
 			return
 		}
-		// badgeRes, _ := http.Get(fmt.Sprintf("https://img.shields.io/badge/Build-%s-Green", appStatus.Status))
-		badgeRes, _ := http.Get("https://img.shields.io/badge/test-foo-red")
+		log.Println(status)
+		log.Println(color)
+		badgeRes, _ := http.Get(fmt.Sprintf("https://img.shields.io/badge/Build-%s-%s", status, color))
+		// badgeRes, _ := http.Get("https://img.shields.io/badge/test-foo-red")
 		badge, _ := ioutil.ReadAll(badgeRes.Body)
 		w.Header().Set("Content-Type", "image/svg+xml")
-		// w.WriteHeader(http.StatusOK)
 		w.Write(badge)
 		return
 	}
