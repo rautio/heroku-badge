@@ -98,10 +98,14 @@ func main() {
 			log.Println("=====STATUS=====")
 			log.Println(data.Status)
 			log.Println("=====END=====")
+			// Update status info
+			_, err := db.Exec(`INSERT INTO status (app_id, app_name, status, last_run_time) VALUES ($1, $2, $3, $4)`, data.App.Id, data.App.Name, data.Status, data.CreatedAt )
+			if err != nil {
+				log.Println("DB Error")
+				log.Println(err)
+			}
 			w.Write([]byte("Success"))
 			// Status table
-			// Only tracking the last status to minimize data storage
-			db.Exec(`INSERT INTO status (app_id, app_name, status, last_run_time) VALUES ($1, $2, $3)`, data.App.Id, data.App.Name, data.Status, data.CreatedAt )
 			return
 		}
 	
