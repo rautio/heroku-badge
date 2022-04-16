@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -45,6 +44,7 @@ func main() {
 		status VARCHAR (20) NOT NULL,
 		last_update TIMESTAMP WITHOUT TIME ZONE NOT NULL
 	)`)
+	defer db.Close()
 
 	/**
 	 	* Return a badge image.
@@ -53,9 +53,9 @@ func main() {
 		* 	app_name=<string> : name of the app deployed in heroku
 		*/
 	getBadgeHandler := func(w http.ResponseWriter, req *http.Request) {
+		db, _ := sql.Open("postgres", os.Getenv("DATABASE_URL"))
 		req.ParseForm()
-		_, hasAppName := req.Form["app_name"]
-		appName, _ := strconv.Atoi(req.URL.Query().Get("app_name"))
+		appName, hasAppName := req.Form["app_name"]
 		log.Println("Get Badge Request!")
 		log.Println(req.Form)
 		log.Println(hasAppName)
@@ -90,6 +90,7 @@ func main() {
 		* 	app_name=<string> : name of the app deployed in heroku
 		*/
 		buildUpdateHandler := func(w http.ResponseWriter, req *http.Request) {
+			db, _ := sql.Open("postgres", os.Getenv("DATABASE_URL"))
 			log.Println("Received Build Update")
 			var postBody BuildUpdate
 			decoder := json.NewDecoder(req.Body)
