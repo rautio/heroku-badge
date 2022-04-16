@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -28,7 +29,21 @@ type BuildUpdate struct {
 	}
 }
 
+
 func main() {
+	// Connect to DB
+  db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+  if err != nil {
+    log.Fatal(err)
+  }
+	// Status table
+	// Only tracking the last status to minimize data storage
+	db.Exec(`CREATE TABLE IF NOT EXISTS status (
+		app_name VARCHAR (50) NOT NULL,
+		app_id VARCHAR (50) NOT NULL,
+		status VARCHAR (20) NOT NULL,
+		last_run_time TIMESTAMP WITHOUT TIME ZONE NOT NULL
+	)`)
 
 	/**
 	 	* Return a badge image.
@@ -83,6 +98,9 @@ func main() {
 			log.Println(data.Status)
 			log.Println("=====END=====")
 			w.Write([]byte("Success"))
+			// Status table
+			// Only tracking the last status to minimize data storage
+			db.Exec(`INSERT INTO status (app_id, app_name, status, last_run_time) VALUES ($1, $2, $3)`, data.App.Id, data.App.Name, data.Status, data.CreatedAt )
 			return
 		}
 	
