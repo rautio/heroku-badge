@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -17,17 +16,16 @@ import (
 type BuildUpdate struct {
 	CreatedAt   string `json:"created_at"`
 	Action      string `json:"action"`    
-	data        map[string]interface{} `json:"data"`   
-	// data         struct {
-	// 	CreatedAt    string `json:"created_at"`
-	// 	UpdatedAt    string `json:"updated_at"`
-	// 	PublishedAt    string `json:"published_at"`
-	// 	Status       string `json:"status"`
-	// 	app           struct {
-	// 		Id             string `json:"id"`
-	// 		Name           string `json:"name"`
-	// 	}
-	// }
+	Data         struct {
+		CreatedAt    string `json:"created_at"`
+		UpdatedAt    string `json:"updated_at"`
+		PublishedAt    string `json:"published_at"`
+		Status       string `json:"status"`
+		App           struct {
+			Id             string `json:"id"`
+			Name           string `json:"name"`
+		}
+	}
 }
 
 func main() {
@@ -59,12 +57,6 @@ func main() {
 		buildUpdateHandler := func(w http.ResponseWriter, req *http.Request) {
 			log.Println("Build Update!")
 			log.Println("=====START=====")
-			log.Println(req)
-			log.Println("=====BODY=====")
-			log.Println(req.Body)
-			log.Println("=====BODY String=====")
-			bodyBytes, _ := ioutil.ReadAll(req.Body)
-			log.Println(string(bodyBytes))
 			var postBody BuildUpdate
 			decoder := json.NewDecoder(req.Body)
 			decodePostErr := decoder.Decode(&postBody)
@@ -73,22 +65,22 @@ func main() {
 				panic(decodePostErr)
 			}
 			log.Println(postBody)
-			data := postBody.data
+			data := postBody.Data
 			log.Println("=====POST BODY=====")
 			log.Println(postBody.CreatedAt)
 			log.Println(postBody.Action)
 			log.Println("=====DATA=====")
 			log.Println(data)
 			log.Println("=====CREATED=====")
-			// log.Println(data.CreatedAt)
-			// log.Println(data.UpdatedAt)
-			// log.Println(data.PublishedAt)
+			log.Println(data.CreatedAt)
+			log.Println(data.UpdatedAt)
+			log.Println(data.PublishedAt)
 			log.Println("=====APP=====")
-			// log.Println(data.app)
-			// log.Println(data.app.Id)
-			// log.Println(data.app.Name)
+			log.Println(data.App)
+			log.Println(data.App.Id)
+			log.Println(data.App.Name)
 			log.Println("=====STATUS=====")
-			// log.Println(data.Status)
+			log.Println(data.Status)
 			log.Println("=====END=====")
 			w.Write([]byte("Success"))
 			return
