@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -61,6 +62,9 @@ func main() {
 			log.Println(req)
 			log.Println("=====BODY=====")
 			log.Println(req.Body)
+			log.Println("=====BODY String=====")
+			bodyBytes, _ := ioutil.ReadAll(req.Body)
+			log.Println(string(bodyBytes))
 			var postBody BuildUpdate
 			decoder := json.NewDecoder(req.Body)
 			decodePostErr := decoder.Decode(&postBody)
