@@ -128,7 +128,7 @@ func main() {
 
 	port := getPort()
 
-	router.HandleFunc("/{app_name", getBadgeHandler).Methods("GET","OPTIONS")
+	router.HandleFunc("/app_name/{app_name}", getBadgeHandler).Methods("GET","OPTIONS")
 	log.Println(fmt.Sprintf("Listening for requests at GET http://localhost%s/", port))
 
 
