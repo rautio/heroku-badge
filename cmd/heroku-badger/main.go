@@ -63,7 +63,7 @@ func main() {
 		var status string
 		var lastUpdate string
 		var appId string
-		err := db.QueryRow(`SELECT app_id,status, last_update FROM status WHERE app_name=$1;`, appName).Scan(&appId, &status, &lastUpdate)
+		err := db.QueryRow(`SELECT app_id, status, last_update FROM status WHERE app_name=$1;`, appName).Scan(&appId, &status, &lastUpdate)
 		defer db.Close()
 		if err != nil {
 			log.Println(err)
@@ -128,7 +128,7 @@ func main() {
 
 	port := getPort()
 
-	router.HandleFunc("/app_name/{app_name}", getBadgeHandler).Methods("GET","OPTIONS")
+	router.HandleFunc("/status", getBadgeHandler).Methods("GET","OPTIONS")
 	log.Println(fmt.Sprintf("Listening for requests at GET http://localhost%s/", port))
 
 
