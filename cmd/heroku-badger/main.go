@@ -40,11 +40,13 @@ func main() {
 	// Status table
 	// Only tracking the last status to minimize data storage
 	db.Exec(`CREATE TABLE IF NOT EXISTS status (
-		app_name VARCHAR (50) NOT NULL,
-		app_id VARCHAR (50) NOT NULL,
+		app_name VARCHAR (50) NOT NULL UNIQUE,
+		app_id VARCHAR (50) NOT NULL UNIQUE,
 		status VARCHAR (20) NOT NULL,
 		last_run_time TIMESTAMP WITHOUT TIME ZONE NOT NULL
 	)`)
+	// Add a constraint combining app_name and app_id
+	db.Exec(`ALTER TABLE status ADD CONSTRAINT sqlUniqueConstraint UNIQUE (app_name, app_id)`)
 
 	/**
 	 	* Return a badge image.
@@ -99,7 +101,7 @@ func main() {
 			log.Println(data.Status)
 			log.Println("=====END=====")
 			// Update status info
-			_, err := db.Exec(`INSERT INTO status (app_id, app_name, status, last_run_time) VALUES ($1, $2, $3, $4)`, data.App.Id, data.App.Name, data.Status, data.CreatedAt )
+			_, err := db.Exec(`INSERT INTO status (app_id, app_name, status, last_run_time) VALUES ($1, $2, $3, $4) ON DUPLICATE KEY UPDATE`, data.App.Id, data.App.Name, data.Status, data.CreatedAt )
 			if err != nil {
 				log.Println("DB Error")
 				log.Println(err)
