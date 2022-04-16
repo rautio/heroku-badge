@@ -85,17 +85,14 @@ func main() {
 			log.Println(data.App.Name)
 			log.Println(data.Status)
 			// Update status info
-			_, err = db.Exec(`
-			UPDATE status SET status=$3, last_update=$4 WHERE app_id=$1 AND last_update <= $4;
-			INSERT INTO status (app_id, app_name, status, last_update)
-       	VALUES ($1, $2, $3, $4)
-       	WHERE NOT EXISTS (SELECT 1 FROM status WHERE app_id=$1);`, data.App.Id, data.App.Name, data.Status, data.CreatedAt )
-			// _, err := db.Exec(`
+			// _, err = db.Exec(`
+			// UPDATE status SET status=$3, last_update=$4 WHERE app_id=$1 AND last_update<=$4;
 			// INSERT INTO status (app_id, app_name, status, last_update)
-			// VALUES ($1, $2, $3, $4)
-			// ON CONFLICT (app_id) DO UPDATE 
-			// SET status = excluded.status, 
-			// 		last_update = excluded.last_update;`, data.App.Id, data.App.Name, data.Status, data.CreatedAt )
+      //  	VALUES ($1, $2, $3, $4)
+      //  	WHERE NOT EXISTS (SELECT 1 FROM status WHERE app_id=$1);`, data.App.Id, data.App.Name, data.Status, data.CreatedAt )
+			_, err := db.Exec(`
+			INSERT INTO status (app_id, app_name, status, last_update)
+			VALUES ($1, $2, $3, $4)`, data.App.Id, data.App.Name, data.Status, data.CreatedAt )
 			if err != nil {
 				log.Println(err)
 			}
