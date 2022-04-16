@@ -73,8 +73,7 @@ func main() {
 		* 	app_name=<string> : name of the app deployed in heroku
 		*/
 		buildUpdateHandler := func(w http.ResponseWriter, req *http.Request) {
-			log.Println("Build Update!")
-			log.Println("=====START=====")
+			log.Println("Received Build Update")
 			var postBody BuildUpdate
 			decoder := json.NewDecoder(req.Body)
 			decodePostErr := decoder.Decode(&postBody)
@@ -82,28 +81,19 @@ func main() {
 				log.Println(decodePostErr)
 				panic(decodePostErr)
 			}
-			log.Println(postBody)
 			data := postBody.Data
-			log.Println("=====POST BODY=====")
-			log.Println(postBody.CreatedAt)
-			log.Println(postBody.Action)
-			log.Println("=====DATA=====")
-			log.Println(data)
-			log.Println("=====CREATED=====")
 			log.Println(data.CreatedAt)
-			log.Println(data.UpdatedAt)
-			log.Println(data.PublishedAt)
-			log.Println("=====APP=====")
-			log.Println(data.App)
 			log.Println(data.App.Id)
 			log.Println(data.App.Name)
-			log.Println("=====STATUS=====")
 			log.Println(data.Status)
-			log.Println("=====END=====")
 			// Update status info
-			_, err := db.Exec(`INSERT INTO status (app_id, app_name, status, last_run_time) VALUES ($1, $2, $3, $4) ON DUPLICATE KEY UPDATE`, data.App.Id, data.App.Name, data.Status, data.CreatedAt )
+			_, err := db.Exec(`
+			INSERT INTO status (app_id, app_name, status, last_run_time)
+			VALUES ($1, $2, $3, $4)
+			ON CONFLICT (app_id, app_name) DO UPDATE 
+			SET status = excluded.status, 
+					last_run_time = excluded.last_run_time;`, data.App.Id, data.App.Name, data.Status, data.CreatedAt )
 			if err != nil {
-				log.Println("DB Error")
 				log.Println(err)
 			}
 			w.Write([]byte("Success"))
