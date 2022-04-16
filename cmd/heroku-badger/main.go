@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -108,7 +109,11 @@ func main() {
 			http.Error(w, "None Found", http.StatusBadRequest)
 			return
 		}
-		w.Write([]byte(fmt.Sprintf("https://img.shields.io/badge/Build-%s$1-Green.", appStatus.Status)))
+		badgeRes, _ := http.Get(fmt.Sprintf("https://img.shields.io/badge/Build-%s-Green.", appStatus.Status))
+		badge, _ := ioutil.ReadAll(badgeRes.Body)
+		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/octet-stream")
+		w.Write(badge)
 		return
 	}
 
