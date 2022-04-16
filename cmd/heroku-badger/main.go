@@ -109,10 +109,10 @@ func main() {
 			http.Error(w, "None Found", http.StatusBadRequest)
 			return
 		}
-		badgeRes, _ := http.Get(fmt.Sprintf("https://img.shields.io/badge/Build-%s-Green.", appStatus.Status))
+		badgeRes, _ := http.Get(fmt.Sprintf("https://img.shields.io/badge/test-foo-red", appStatus.Status))
 		badge, _ := ioutil.ReadAll(badgeRes.Body)
 		w.WriteHeader(http.StatusOK)
-		w.Header().Set("Content-Type", "image/svg+xml")
+		w.Header().Set("Content-Type", "svg+xml")
 		w.Write(badge)
 		return
 	}
