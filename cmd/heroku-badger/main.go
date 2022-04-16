@@ -97,7 +97,7 @@ func main() {
 		return
 	}
 
-	getBadgeHandler := func(w http.ResponseWriter, req *http.Request) {
+	getBuildBadgeHandler := func(w http.ResponseWriter, req *http.Request) {
 		req.ParseForm()
 		appName := req.FormValue("app_name")
 		appStatus, dbErr := getAppStatus(appName)
@@ -112,7 +112,6 @@ func main() {
 		if (status == "failed") {
 			color = "critical"
 		}
-		log.Println(appStatus)
 		if dbErr != nil {
 			status = "unknown"
 			log.Println(dbErr)
@@ -121,10 +120,7 @@ func main() {
 			http.Error(w, "None Found", http.StatusBadRequest)
 			return
 		}
-		log.Println(status)
-		log.Println(color)
 		badgeRes, _ := http.Get(fmt.Sprintf("https://img.shields.io/badge/Build-%s-%s", status, color))
-		// badgeRes, _ := http.Get("https://img.shields.io/badge/test-foo-red")
 		badge, _ := ioutil.ReadAll(badgeRes.Body)
 		w.Header().Set("Content-Type", "image/svg+xml")
 		w.Write(badge)
@@ -175,8 +171,8 @@ func main() {
 
 	port := getPort()
 
-	router.HandleFunc("/", getBadgeHandler).Methods("GET","OPTIONS")
-	log.Println(fmt.Sprintf("Listening for requests at GET http://localhost%s/", port))
+	router.HandleFunc("/build", getBuildBadgeHandler).Methods("GET","OPTIONS")
+	log.Println(fmt.Sprintf("Listening for requests at GET http://localhost%s/build", port))
 
 	router.HandleFunc("/status", getStatusHandler).Methods("GET","OPTIONS")
 	log.Println(fmt.Sprintf("Listening for requests at GET http://localhost%s/status", port))
