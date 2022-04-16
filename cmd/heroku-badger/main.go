@@ -18,7 +18,7 @@ type AppStatus struct {
 	Id             string `json:"app_id"`
 	Name           string `json:"app_name"`
 	Status         string `json:"status"`
-	LastUpdate     string `json:"last_update`
+	UpdatedAt      string `json:"updated_at"`
 }
 
 type BuildUpdate struct {
