@@ -99,8 +99,8 @@ func main() {
 	getBadgeHandler := func(w http.ResponseWriter, req *http.Request) {
 		req.ParseForm()
 		appName := req.FormValue("app_name")
-		status, dbErr := getAppStatus(appName)
-		log.Println(status)
+		appStatus, dbErr := getAppStatus(appName)
+		log.Println(appStatus)
 		if dbErr != nil {
 			log.Println(dbErr)
 			// If there was no match above then it is an unknown word
@@ -108,6 +108,7 @@ func main() {
 			http.Error(w, "None Found", http.StatusBadRequest)
 			return
 		}
+		w.Write([]byte(fmt.Sprintf("https://img.shields.io/badge/Build-%s$1-Green.", appStatus.Status)))
 		return
 	}
 
