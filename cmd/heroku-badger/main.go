@@ -47,12 +47,12 @@ func main() {
 	defer db.Close()
 
 	/**
-	 	* Return a badge image.
+	 	* Return status info for the app. Requires a specific app name.
 		* 
 		* Query Params: 
 		* 	app_name=<string> : name of the app deployed in heroku
 		*/
-	getBadgeHandler := func(w http.ResponseWriter, req *http.Request) {
+	statusHandler := func(w http.ResponseWriter, req *http.Request) {
 		db, _ := sql.Open("postgres", os.Getenv("DATABASE_URL"))
 		req.ParseForm()
 		appName := req.FormValue("app_name")
@@ -82,14 +82,12 @@ func main() {
 	}
 
 	/**
-	 	* Return a badge image.
+	 	* Webhook Listener for heroku build updates.
 		* 
-		* Query Params: 
-		* 	app_name=<string> : name of the app deployed in heroku
 		*/
 		buildUpdateHandler := func(w http.ResponseWriter, req *http.Request) {
-			db, _ := sql.Open("postgres", os.Getenv("DATABASE_URL"))
 			log.Println("Received Build Update")
+			db, _ := sql.Open("postgres", os.Getenv("DATABASE_URL"))
 			var postBody BuildUpdate
 			decoder := json.NewDecoder(req.Body)
 			decodePostErr := decoder.Decode(&postBody)
@@ -102,14 +100,8 @@ func main() {
 			log.Println(data.App.Id)
 			log.Println(data.App.Name)
 			log.Println(data.Status)
-			// Update status info
-			// _, err = db.Exec(`
-			// UPDATE status SET status=$2, last_update=$3 WHERE app_id=$1 AND last_update<=$3;`, data.App.Id, data.Status, data.CreatedAt)
-			// _, err = db.Exec(`
-			// UPDATE status SET status=$3, last_update=$4 WHERE app_id=$1 AND last_update<=$4;
-			// INSERT INTO status (app_id, app_name, status, last_update)
-      //  	VALUES ($1, $2, $3, $4)
-      //  	WHERE (NOT) EXISTS (SELECT 1 FROM status WHERE app_id=$1);`, data.App.Id, data.App.Name, data.Status, data.CreatedAt )
+			// Separting Insert and Update. Both are optional and only 1 should execute
+			// depending on if its a brand new app or an update to an existing one
 			_, errInsert := db.Exec(`
 			INSERT INTO status (app_id, app_name, status, last_update)
        	VALUES ($1, $2, $3, $4)
@@ -117,9 +109,6 @@ func main() {
 			_, errUpdate := db.Exec(`
 			UPDATE status SET status=$2, last_update=$3 WHERE app_id=$1 AND last_update<=$3;
 			`, data.App.Id, data.Status, data.CreatedAt )
-			// _, err := db.Exec(`
-			// INSERT INTO status (app_id, app_name, status, last_update)
-			// VALUES ($1, $2, $3, $4)`, data.App.Id, data.App.Name, data.Status, data.CreatedAt )
 			defer db.Close()
 			if errInsert != nil {
 				log.Println(errInsert)
@@ -128,7 +117,6 @@ func main() {
 				log.Println(errUpdate)
 			}
 			w.Write([]byte("Success"))
-			// Status table
 			return
 		}
 	
@@ -137,7 +125,7 @@ func main() {
 
 	port := getPort()
 
-	router.HandleFunc("/status", getBadgeHandler).Methods("GET","OPTIONS")
+	router.HandleFunc("/status", statusHandler).Methods("GET","OPTIONS")
 	log.Println(fmt.Sprintf("Listening for requests at GET http://localhost%s/", port))
 
 
