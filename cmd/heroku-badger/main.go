@@ -15,8 +15,8 @@ import (
 
 
 type AppStatus struct {
-	Id             string `json:"id"`
-	Name           string `json:"name"`
+	Id             string `json:"app_id"`
+	Name           string `json:"app_name"`
 	Status         string `json:"status"`
 	LastUpdate     string `json:"last_update`
 }
