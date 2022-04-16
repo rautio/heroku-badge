@@ -103,13 +103,13 @@ func main() {
 		appStatus, dbErr := getAppStatus(appName)
 		status := appStatus.Status
 		color := "inactive"
-		if (status == "success") {
+		if (status == "succeeded") {
 			color = "success"
 		}
 		if (status == "pending") {
 			color = "yellow"
 		}
-		if (status == "failure") {
+		if (status == "failed") {
 			color = "critical"
 		}
 		log.Println(appStatus)
