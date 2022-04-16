@@ -86,7 +86,7 @@ func main() {
 			log.Println(data.Status)
 			// Update status info
 			_, err = db.Exec(`
-			UPDATE status SET status='$3', last_update=$4 WHERE app_id=$1 AND last_update<=$4;`, data.App.Id, data.App.Name, data.Status, data.CreatedAt )
+			UPDATE status SET status='$2', last_update=$3 WHERE app_id=$1 AND last_update<=$3;`, data.App.Id, data.Status, data.CreatedAt)
 			// _, err = db.Exec(`
 			// UPDATE status SET status='$3', last_update='$4' WHERE app_id='$1' AND last_update<='$4';
 			// INSERT INTO status (app_id, app_name, status, last_update)
