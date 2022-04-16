@@ -14,6 +14,13 @@ import (
 )
 
 
+type AppStatus struct {
+	Id             string `json:"id"`
+	Name           string `json:"name"`
+	Status         string `json:"status"`
+	LastUpdate     string `json:"last_update`
+}
+
 type BuildUpdate struct {
 	CreatedAt   string `json:"created_at"`
 	Action      string `json:"action"`    
@@ -29,9 +36,21 @@ type BuildUpdate struct {
 	}
 }
 
+func getAppStatus(appName string) (AppStatus, error) {
+	db, _ := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	var status string
+	var lastUpdate string
+	var appId string
+	dbErr := db.QueryRow(`SELECT app_id, status, last_update FROM status WHERE app_name=$1;`, appName).Scan(&appId, &status, &lastUpdate)
+	defer db.Close()
+	if dbErr != nil {
+		return AppStatus{}, dbErr
+	}
+	return AppStatus{ appId, appName, status, lastUpdate }, nil
+}
 
-func main() {
-	// Connect to DB
+
+func setupDb() {
   db, dbConnectErr := sql.Open("postgres", os.Getenv("DATABASE_URL"))
   if dbConnectErr != nil {
     log.Fatal(dbConnectErr)
@@ -45,6 +64,10 @@ func main() {
 		last_update TIMESTAMP WITHOUT TIME ZONE NOT NULL
 	)`)
 	defer db.Close()
+}
+
+func main() {
+	setupDb();
 
 	/**
 	 	* Return status info for the app. Requires a specific app name.
@@ -52,32 +75,39 @@ func main() {
 		* Query Params: 
 		* 	app_name=<string> : name of the app deployed in heroku
 		*/
-	statusHandler := func(w http.ResponseWriter, req *http.Request) {
-		db, _ := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	getStatusHandler := func(w http.ResponseWriter, req *http.Request) {
 		req.ParseForm()
 		appName := req.FormValue("app_name")
-		log.Println("Get Badge Request!")
-		log.Println(appName)
-		var status string
-		var lastUpdate string
-		var appId string
-		err := db.QueryRow(`SELECT app_id, status, last_update FROM status WHERE app_name=$1;`, appName).Scan(&appId, &status, &lastUpdate)
-		defer db.Close()
-		if err != nil {
-			log.Println(err)
+		status, dbErr := getAppStatus(appName)
+		if dbErr != nil {
+			log.Println(dbErr)
 			// If there was no match above then it is an unknown word
 			w.WriteHeader(http.StatusBadRequest)
 			http.Error(w, "None Found", http.StatusBadRequest)
 			return
 		}
-		result := map[string]interface{}{ "status": status, "app_id": appId, "last_update": lastUpdate }
-		jsonResponse, jsonError := json.Marshal(result)
+		jsonResponse, jsonError := json.Marshal(status)
 		if jsonError != nil {
 			log.Println(jsonError)
 		  fmt.Println("Unable to encode JSON")
 		}
     w.Header().Set("Content-Type", "application/json")
 		w.Write(jsonResponse)
+		return
+	}
+
+	getBadgeHandler := func(w http.ResponseWriter, req *http.Request) {
+		req.ParseForm()
+		appName := req.FormValue("app_name")
+		status, dbErr := getAppStatus(appName)
+		log.Println(status)
+		if dbErr != nil {
+			log.Println(dbErr)
+			// If there was no match above then it is an unknown word
+			w.WriteHeader(http.StatusBadRequest)
+			http.Error(w, "None Found", http.StatusBadRequest)
+			return
+		}
 		return
 	}
 
@@ -125,9 +155,11 @@ func main() {
 
 	port := getPort()
 
-	router.HandleFunc("/status", statusHandler).Methods("GET","OPTIONS")
+	router.HandleFunc("/", getBadgeHandler).Methods("GET","OPTIONS")
 	log.Println(fmt.Sprintf("Listening for requests at GET http://localhost%s/", port))
 
+	router.HandleFunc("/status", getStatusHandler).Methods("GET","OPTIONS")
+	log.Println(fmt.Sprintf("Listening for requests at GET http://localhost%s/status", port))
 
 	router.HandleFunc("/build-update", buildUpdateHandler).Methods("POST","OPTIONS")
 	log.Println(fmt.Sprintf("Listening for requests at POST http://localhost%s/build-update", port))
