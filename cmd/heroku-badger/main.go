@@ -55,10 +55,8 @@ func main() {
 	getBadgeHandler := func(w http.ResponseWriter, req *http.Request) {
 		db, _ := sql.Open("postgres", os.Getenv("DATABASE_URL"))
 		req.ParseForm()
-		appName, hasAppName := req.Form["app_name"]
+		appName := req.FormValue("app_name")
 		log.Println("Get Badge Request!")
-		log.Println(req.Form)
-		log.Println(hasAppName)
 		log.Println(appName)
 		var status string
 		var lastUpdate string
@@ -116,7 +114,7 @@ func main() {
 			UPDATE status SET status=$3, last_update=$4 WHERE app_id=$1 AND last_update<=$4;
 			INSERT INTO status (app_id, app_name, status, last_update)
        	VALUES ($1, $2, $3, $4)
-       	ON CONFLICT DO NOTHING);`, data.App.Id, data.App.Name, data.Status, data.CreatedAt )
+       	ON CONFLICT DO NOTHING;`, data.App.Id, data.App.Name, data.Status, data.CreatedAt )
 			// _, err := db.Exec(`
 			// INSERT INTO status (app_id, app_name, status, last_update)
 			// VALUES ($1, $2, $3, $4)`, data.App.Id, data.App.Name, data.Status, data.CreatedAt )
