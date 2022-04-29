@@ -9,7 +9,7 @@ and have had at least 1 build since the add on was added.
 
 ### 1. Configure your Heroku app
 
-Within the Heroku administration for your app navigate tot the webhooks page. From there create a new webhook with:
+Within the Heroku administration web page for your app navigate to the webhooks page. From there create a new webhook with:
 
 1. Payload URL: `https://heroku-badger.herokuapp.com/build-update`
 2. Select the `api:build` and `api:release` events.
@@ -18,7 +18,7 @@ Now your app will send webhook messages to the heroku badger app whenever a new 
 
 ### 2. Add the badge in your repo's readme
 
-Copy/Paste the following and replace `<app_name>` with your apps unique name:
+Copy & paste the following and replace `<app_name>` with your apps unique name:g
 
 ```
 [![Build Status](https://heroku-badger.herokuapp.com/build?app_name=<app_name>)](https://heroku-badger.herokuapp.com/build?app_name=<app_name>)
